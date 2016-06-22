@@ -39,7 +39,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := graph.NewDGraphClient(conn)
+	c := graph.NewDgraphClient(conn)
 
 	resp, err := c.Query(context.Background(), &graph.Request{Query: *q})
 	if err != nil {
