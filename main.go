@@ -24,7 +24,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/dgraph-io/clients/dgraphgoclient/graph"
+	"github.com/dgraph-io/dgraphgoclient/graph"
 )
 
 var ip = flag.String("ip", "127.0.0.1:8081", "Port to communicate with server")
