@@ -24,6 +24,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
+	"github.com/dgraph-io/dgraphgoclient/client"
 	"github.com/dgraph-io/dgraphgoclient/graph"
 )
 
@@ -41,10 +42,42 @@ func main() {
 
 	c := graph.NewDgraphClient(conn)
 
-	resp, err := c.Query(context.Background(), &graph.Request{Query: *q})
+	req := client.NewRequest()
+	if err := req.SetMutation("alice", "name", "", "Alice", ""); err != nil {
+		log.Fatal(err)
+	}
+	if err := req.SetMutation("alice", "falls.in", "", "rabbithole", ""); err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := c.Query(context.Background(), req.Request())
 	if err != nil {
 		log.Fatalf("Error in getting response from server, %s", err)
 	}
 
-	fmt.Printf("Subgraph %+v", resp.N)
+	req = client.NewRequest()
+	req.SetQuery("{ me(_xid_: alice) { name falls.in } }")
+	resp, err = c.Query(context.Background(), req.Request())
+	if err != nil {
+		log.Fatalf("Error in getting response from server, %s", err)
+	}
+
+	fmt.Println("alice", resp.N.Properties)
+
+	req = client.NewRequest()
+	if err := req.DelMutation("alice", "name", "", "Alice", ""); err != nil {
+		log.Fatal(err)
+	}
+	resp, err = c.Query(context.Background(), req.Request())
+	if err != nil {
+		log.Fatalf("Error in getting response from server, %s", err)
+	}
+
+	req = client.NewRequest()
+	req.SetQuery("{ me(_xid_: alice) { name falls.in } }")
+	resp, err = c.Query(context.Background(), req.Request())
+	if err != nil {
+		log.Fatalf("Error in getting response from server, %s", err)
+	}
+	fmt.Println("alice", resp.N.Properties)
 }
