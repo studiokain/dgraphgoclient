@@ -29,9 +29,9 @@ import (
 )
 
 var ip = flag.String("ip", "127.0.0.1:8081", "Port to communicate with server")
-var q = flag.String("query", "", "Query sent to the server")
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.Parse()
 
 	conn, err := grpc.Dial(*ip, grpc.WithInsecure())

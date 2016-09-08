@@ -48,11 +48,11 @@ func (req *Req) SetMutation(sub, pred, objId, objVal, label string) error {
 		return err
 	}
 
-	if req.gr.M == nil {
-		req.gr.M = new(graph.Mutation)
+	if req.gr.Mutation == nil {
+		req.gr.Mutation = new(graph.Mutation)
 	}
 
-	req.gr.M.Set = append(req.gr.M.Set, &graph.NQuad{
+	req.gr.Mutation.Set = append(req.gr.Mutation.Set, &graph.NQuad{
 		Sub:    sub,
 		Pred:   pred,
 		ObjId:  objId,
@@ -67,11 +67,11 @@ func (req *Req) DelMutation(sub, pred, objId, objVal, label string) error {
 		return err
 	}
 
-	if req.gr.M == nil {
-		req.gr.M = new(graph.Mutation)
+	if req.gr.Mutation == nil {
+		req.gr.Mutation = new(graph.Mutation)
 	}
 
-	req.gr.M.Del = append(req.gr.M.Del, &graph.NQuad{
+	req.gr.Mutation.Del = append(req.gr.Mutation.Del, &graph.NQuad{
 		Sub:    sub,
 		Pred:   pred,
 		ObjId:  objId,
