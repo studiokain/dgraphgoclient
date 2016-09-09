@@ -27,7 +27,7 @@ import (
 	"github.com/dgraph-io/dgraphgoclient/graph"
 )
 
-var ip = flag.String("ip", "127.0.0.1:8081", "Port to communicate with server")
+var ip = flag.String("ip", "127.0.0.1:8080", "Port to communicate with server")
 var q = flag.String("query", "", "Query sent to the server")
 
 func main() {
@@ -46,5 +46,6 @@ func main() {
 		log.Fatalf("Error in getting response from server, %s", err)
 	}
 
-	fmt.Printf("Subgraph %+v", resp.N)
+	fmt.Println(resp.N)
+	fmt.Println(resp.AssignedUids)
 }
