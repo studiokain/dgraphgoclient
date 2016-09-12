@@ -24,13 +24,14 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
+	"github.com/dgraph-io/dgraphgoclient/client"
 	"github.com/dgraph-io/dgraphgoclient/graph"
 )
 
 var ip = flag.String("ip", "127.0.0.1:8080", "Port to communicate with server")
-var q = flag.String("query", "", "Query sent to the server")
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.Parse()
 
 	conn, err := grpc.Dial(*ip, grpc.WithInsecure())
@@ -41,11 +42,42 @@ func main() {
 
 	c := graph.NewDgraphClient(conn)
 
-	resp, err := c.Query(context.Background(), &graph.Request{Query: *q})
+	req := client.NewRequest()
+	if err := req.SetMutation("alice", "name", "", "Alice", ""); err != nil {
+		log.Fatal(err)
+	}
+	if err := req.SetMutation("alice", "falls.in", "", "rabbithole", ""); err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := c.Query(context.Background(), req.Request())
 	if err != nil {
 		log.Fatalf("Error in getting response from server, %s", err)
 	}
 
-	fmt.Println(resp.N)
-	fmt.Println(resp.AssignedUids)
+	req = client.NewRequest()
+	req.SetQuery("{ me(_xid_: alice) { name falls.in } }")
+	resp, err = c.Query(context.Background(), req.Request())
+	if err != nil {
+		log.Fatalf("Error in getting response from server, %s", err)
+	}
+
+	fmt.Println("alice", resp.N.Properties)
+
+	req = client.NewRequest()
+	if err := req.DelMutation("alice", "name", "", "Alice", ""); err != nil {
+		log.Fatal(err)
+	}
+	resp, err = c.Query(context.Background(), req.Request())
+	if err != nil {
+		log.Fatalf("Error in getting response from server, %s", err)
+	}
+
+	req = client.NewRequest()
+	req.SetQuery("{ me(_xid_: alice) { name falls.in } }")
+	resp, err = c.Query(context.Background(), req.Request())
+	if err != nil {
+		log.Fatalf("Error in getting response from server, %s", err)
+	}
+	fmt.Println("alice", resp.N.Properties)
 }
