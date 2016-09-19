@@ -12,9 +12,14 @@ type Req struct {
 	gr graph.Request
 }
 
+// NewRequest initializes and returns a new request which can be used to query
+// or perform set/delete mutations.
 func NewRequest() Req {
 	return Req{}
 }
+
+// Request returns the graph request object which is sent to the server to perform
+// a query/mutation.
 func (req *Req) Request() *graph.Request {
 	return &req.gr
 }
@@ -35,10 +40,12 @@ func checkNQuad(sub, pred, objId, objVal string) error {
 	return nil
 }
 
+// SetQuery sets a query as part of the request.
 func (req *Req) SetQuery(q string) {
 	req.gr.Query = q
 }
 
+// SetMutation adds a set mutation operation.
 func (req *Req) SetMutation(sub, pred, objId, objVal, label string) error {
 	if err := checkNQuad(sub, pred, objId, objVal); err != nil {
 		return err
@@ -58,6 +65,7 @@ func (req *Req) SetMutation(sub, pred, objId, objVal, label string) error {
 	return nil
 }
 
+// DelMutation adds a delete mutation operation.
 func (req *Req) DelMutation(sub, pred, objId, objVal, label string) error {
 	if err := checkNQuad(sub, pred, objId, objVal); err != nil {
 		return err
