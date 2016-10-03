@@ -7,16 +7,16 @@ import (
 )
 
 func TestCheckNQuad(t *testing.T) {
-	if err := checkNQuad("", "name", "", "Alice"); err == nil {
+	if err := checkNQuad("", "name", "", Str("Alice")); err == nil {
 		t.Fatal(err)
 	}
-	if err := checkNQuad("alice", "", "", "Alice"); err == nil {
+	if err := checkNQuad("alice", "", "", Str("Alice")); err == nil {
 		t.Fatal(err)
 	}
-	if err := checkNQuad("alice", "name", "", ""); err == nil {
+	if err := checkNQuad("alice", "name", "", nil); err == nil {
 		t.Fatal(err)
 	}
-	if err := checkNQuad("alice", "name", "id", "Alice"); err == nil {
+	if err := checkNQuad("alice", "name", "id", Str("Alice")); err == nil {
 		t.Fatal(err)
 	}
 }
@@ -24,13 +24,13 @@ func TestCheckNQuad(t *testing.T) {
 func TestSetMutation(t *testing.T) {
 	req := NewRequest()
 
-	if err := req.SetMutation("alice", "name", "", "Alice", ""); err != nil {
+	if err := req.SetMutation("alice", "name", "", Str("Alice"), ""); err != nil {
 		t.Fatal(err)
 	}
-	if err := req.SetMutation("alice", "falls.in", "", "rabbithole", ""); err != nil {
+	if err := req.SetMutation("alice", "falls.in", "", Str("rabbithole"), ""); err != nil {
 		t.Fatal(err)
 	}
-	if err := req.DelMutation("alice", "falls.in", "", "rabbithole", ""); err != nil {
+	if err := req.DelMutation("alice", "falls.in", "", Str("rabbithole"), ""); err != nil {
 		t.Fatal(err)
 	}
 

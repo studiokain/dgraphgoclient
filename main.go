@@ -43,10 +43,13 @@ func main() {
 	c := graph.NewDgraphClient(conn)
 
 	req := client.NewRequest()
-	if err := req.SetMutation("alice", "name", "", "Alice", ""); err != nil {
+	if err := req.SetMutation("alice", "name", "", client.Str("Alice"), ""); err != nil {
 		log.Fatal(err)
 	}
-	if err := req.SetMutation("alice", "falls.in", "", "rabbithole", ""); err != nil {
+	if err := req.SetMutation("alice", "falls.in", "", client.Str("rabbithole"), ""); err != nil {
+		log.Fatal(err)
+	}
+	if err := req.SetMutation("alice", "age", "", client.Int(13), ""); err != nil {
 		log.Fatal(err)
 	}
 
@@ -56,7 +59,7 @@ func main() {
 	}
 
 	req = client.NewRequest()
-	req.SetQuery("{ me(_xid_: alice) { name falls.in } }")
+	req.SetQuery("{ me(_xid_: alice) { name age falls.in } }")
 	resp, err = c.Query(context.Background(), req.Request())
 	if err != nil {
 		log.Fatalf("Error in getting response from server, %s", err)
@@ -65,7 +68,7 @@ func main() {
 	fmt.Println("alice", resp.N.Properties)
 
 	req = client.NewRequest()
-	if err := req.DelMutation("alice", "name", "", "Alice", ""); err != nil {
+	if err := req.DelMutation("alice", "name", "", client.Str("Alice"), ""); err != nil {
 		log.Fatal(err)
 	}
 	resp, err = c.Query(context.Background(), req.Request())
