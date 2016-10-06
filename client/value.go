@@ -47,3 +47,24 @@ func Bytes(val []byte) Value {
 func Bool(val bool) Value {
 	return &graph.Value{&graph.Value_BoolVal{val}}
 }
+
+// Geo returns a geo graph.Value
+func Geo(val []byte) Value {
+	return &graph.Value{&graph.Value_GeoVal{val}}
+}
+
+// ToValue converts val into the appropriate Value
+func ToValue(val interface{}) Value {
+	switch v := val.(type) {
+	case int32:
+		return Int(v)
+	case string:
+		return Str(v)
+	case float64:
+		return Double(v)
+	case bool:
+		return Bool(v)
+	default:
+		return nil
+	}
+}

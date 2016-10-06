@@ -20,19 +20,27 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	"github.com/dgraph-io/dgraphgoclient/client"
+	"github.com/dgraph-io/dgraphgoclient/geo"
 	"github.com/dgraph-io/dgraphgoclient/graph"
 )
 
 var ip = flag.String("ip", "127.0.0.1:8080", "Port to communicate with server")
+var json = flag.String("json", "", "Json file to upload")
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.Parse()
+
+	if *json != "" {
+		uploadJSON(*json)
+		return
+	}
 
 	conn, err := grpc.Dial(*ip, grpc.WithInsecure())
 	if err != nil {
@@ -52,6 +60,13 @@ func main() {
 	if err := req.SetMutation("alice", "age", "", client.Int(13), ""); err != nil {
 		log.Fatal(err)
 	}
+	loc, err := geo.ValueFromJson(`{"type":"Point","coordinates":[-122.2207184,37.72129059]}`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := req.SetMutation("alice", "location", "", loc, ""); err != nil {
+		log.Fatal(err)
+	}
 
 	resp, err := c.Query(context.Background(), req.Request())
 	if err != nil {
@@ -59,7 +74,7 @@ func main() {
 	}
 
 	req = client.NewRequest()
-	req.SetQuery("{ me(_xid_: alice) { name age falls.in } }")
+	req.SetQuery("{ me(_xid_: alice) { name age falls.in location } }")
 	resp, err = c.Query(context.Background(), req.Request())
 	if err != nil {
 		log.Fatalf("Error in getting response from server, %s", err)
@@ -83,4 +98,21 @@ func main() {
 		log.Fatalf("Error in getting response from server, %s", err)
 	}
 	fmt.Println("alice", resp.N.Properties)
+}
+
+func uploadJSON(json string) {
+	f, err := os.Open(json)
+	if err != nil {
+		log.Fatalf("Error opening file %s: %v", json, err)
+	}
+	defer f.Close()
+
+	conn, err := grpc.Dial(*ip, grpc.WithInsecure())
+	if err != nil {
+		log.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
+	geo.Upload(c, f)
 }
