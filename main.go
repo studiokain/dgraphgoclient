@@ -17,10 +17,13 @@
 package main
 
 import (
+	"compress/gzip"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"strings"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -113,6 +116,15 @@ func uploadJSON(json string) {
 	}
 	defer conn.Close()
 
+	var r io.Reader
+	r = f
 	c := graph.NewDgraphClient(conn)
-	geo.Upload(c, f)
+
+	if strings.HasSuffix(json, ".gz") {
+		r, err = gzip.NewReader(f)
+		if err != nil {
+			log.Fatalf("Error reading gzip file %s: %v", json, err)
+		}
+	}
+	geo.Upload(c, r)
 }
